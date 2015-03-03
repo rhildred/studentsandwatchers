@@ -1,0 +1,113 @@
+<!Doctype html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+</head>
+
+<body>
+    <h2>Students</h2>
+    <div id='studentsList'>
+        <table class='studentsEditor'>
+            <tr>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Watchers</th>
+            </tr>
+            <tbody data-bind="foreach: students">
+                <tr>
+                    <td>
+                        <input data-bind='value: firstName' />
+                        <div><a href='#' data-bind='click: $root.removeStudent'>Delete</a>
+                        </div>
+                    </td>
+                    <td>
+                        <input data-bind='value: lastName' />
+                    </td>
+                    <td>
+                        <table>
+                            <tbody data-bind="foreach: watchers">
+                                <tr>
+                                    <td>
+                                        <input data-bind='value: watcherFirstName' />
+                                    </td>
+                                    <td>
+                                        <input data-bind='value: watcherLastName' />
+                                    </td>
+                                    <td><a href='#' data-bind='click: $root.removeWatcher'>Delete</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <a href='#' data-bind='click: $root.addWatcher'>Add watcher</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p>
+        <button data-bind='click: addStudent'>Add a student</button>
+        <button data-bind='click: save, enable: students().length > 0'>Save to JSON</button>
+    </p>
+    <textarea data-bind='value: lastSavedJson' rows='5' cols='60' disabled='disabled'> </textarea>
+
+
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
+    <script>
+        jQuery(document).ready(function () {
+
+            var initialData = [
+                { firstName: "Danny", lastName: "LaRusso", watchers: [
+                    { watcherFirstName: "Rich", watcherLastName: "Hildred" },
+                    { watcherFirstName: "Dianne", watcherLastName: "Hildred"}]
+                }
+            ];
+
+            var StudentsModel = function(students) {
+                var self = this;
+                self.students = ko.observableArray(ko.utils.arrayMap(students, function(student) {
+                    return { firstName: student.firstName, lastName: student.lastName, watchers: ko.observableArray(student.watchers) };
+                }));
+
+                self.addStudent = function() {
+                    self.students.push({
+                        firstName: "",
+                        lastName: "",
+                        watchers: ko.observableArray()
+                    });
+                };
+
+                self.removeStudent = function(student) {
+                    self.students.remove(student);
+                };
+
+                self.addWatcher = function(student) {
+                    student.watchers.push({
+                        watcherFirstName: "",
+                        watcherLastName: ""
+                    });
+                };
+
+                self.removeWatcher = function(watcher) {
+                    $.each(self.students(), function() { this.watchers.remove(watcher) })
+                };
+
+                self.save = function() {
+                    self.lastSavedJson(JSON.stringify(ko.toJS(self.students), null, 2));
+                };
+
+                self.lastSavedJson = ko.observable("")
+            };
+
+            ko.applyBindings(new StudentsModel(initialData));
+
+
+
+        });
+    </script>
+</body>
+
+</html>
