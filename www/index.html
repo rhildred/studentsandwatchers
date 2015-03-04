@@ -3,54 +3,74 @@
 
 <head>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+    <style>
+        tr{
+            height: 2.8em;
+        }
+
+        #students, #watchers, #subscriber{
+            margin: 1em;
+        }
+
+    </style>
 </head>
 
 <body>
-    <h2>Students</h2>
-    <div id='studentsList'>
-        <table class='studentsEditor'>
-            <tr>
-                <th>First name</th>
-                <th>Last name</th>
-                <th>Watchers</th>
-            </tr>
-            <tbody data-bind="foreach: students">
-                <tr>
-                    <td>
-                        <input data-bind='value: firstName' />
-                        <div><a href='#' data-bind='click: $root.removeStudent'>Delete</a>
-                        </div>
-                    </td>
-                    <td>
-                        <input data-bind='value: lastName' />
-                    </td>
-                    <td>
-                        <table>
-                            <tbody data-bind="foreach: watchers">
-                                <tr>
-                                    <td>
-                                        <input data-bind='value: watcherFirstName' />
-                                    </td>
-                                    <td>
-                                        <input data-bind='value: watcherLastName' />
-                                    </td>
-                                    <td><a href='#' data-bind='click: $root.removeWatcher'>Delete</a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <a href='#' data-bind='click: $root.addWatcher'>Add watcher</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div id="subscriber">
+        <h1>Subscriber</h1>
+        <input data-bind='value: model.subscriberFirstName' />
+        <input data-bind='value: model.subscriberLastName' />
     </div>
+    <div id="students" data-bind='visible: model.students().length > 0'>
+        <h2>Students (<span data-bind='text: model.students().length'></span>)</h2>
+        <div id='studentsList'>
+            <table class='studentsEditor'>
+                <tr>
+                    <th>First name</th>
+                    <th>Last name</th>
+                </tr>
+                <tbody data-bind="foreach: model.students">
+                    <tr>
+                        <td>
+                            <input data-bind='value: firstName' />
+                        </td>
+                        <td>
+                            <input data-bind='value: lastName' />
+                        </td>
+                        <td><a class="btn btn-danger" data-bind='click: $root.removeStudent'><i class="glyphicon glyphicon-minus"></i>&nbsp;Delete</a>
+                            </td>
+                    </tr>
+                    <tr>
+                        <td colspan=3>
+                            <table id="watchers" data-bind='visible: watchers().length > 0'>
+                                <tr><th>Watchers</th></tr>
+                                <tbody data-bind="foreach: watchers">
+                                    <tr>
+                                        <td>
+                                            <input data-bind='value: watcherFirstName' />
+                                        </td>
+                                        <td>
+                                            <input data-bind='value: watcherLastName' />
+                                        </td>
+                                        <td><a class="btn btn-danger" data-bind='click: $root.removeWatcher'><i class="glyphicon glyphicon-minus"></i>&nbsp;Delete</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <a class="btn btn-success" data-bind='click: $root.addWatcher'><i class="glyphicon glyphicon-plus"></i>&nbsp;Add watcher</a>
+                        </td>
+                    </tr>
 
+
+                </tbody>
+            </table>
+        </div>
+    </div>
     <p>
-        <button data-bind='click: addStudent'>Add a student</button>
-        <button data-bind='click: save, enable: students().length > 0'>Save to JSON</button>
+        <button class="btn btn-success" data-bind='click: addStudent'><i class="glyphicon glyphicon-plus"></i>&nbsp;Add student</button>
+        <button class="btn btn-primary" data-bind='click: save'><i class="glyphicon glyphicon-save"></i>&nbsp;Save to JSON</button>
     </p>
-    <textarea data-bind='value: lastSavedJson' rows='5' cols='60' disabled='disabled'> </textarea>
+    <textarea data-bind='value: lastSavedJson' rows='5' cols='60' disabled='disabled'></textarea>
 
 
     <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
@@ -59,44 +79,67 @@
     <script>
         jQuery(document).ready(function () {
 
-            var initialData = [
-                { firstName: "Danny", lastName: "LaRusso", watchers: [
-                    { watcherFirstName: "Rich", watcherLastName: "Hildred" },
-                    { watcherFirstName: "Dianne", watcherLastName: "Hildred"}]
+            var initialData = {
+                subscriberFirstName: "Joe",
+                subscriberLastName: "Small",
+                students: [
+                    {
+                        firstName: "Danny",
+                        lastName: "LaRusso",
+                        watchers: [
+                            {
+                                watcherFirstName: "Rich",
+                                watcherLastName: "Hildred"
+                            },
+                            {
+                                watcherFirstName: "Dianne",
+                                watcherLastName: "Hildred"
+                            }]
                 }
-            ];
+            ]
+            };
 
-            var StudentsModel = function(students) {
+            var StudentsModel = function (subscriber) {
                 var self = this;
-                self.students = ko.observableArray(ko.utils.arrayMap(students, function(student) {
-                    return { firstName: student.firstName, lastName: student.lastName, watchers: ko.observableArray(student.watchers) };
-                }));
+                self.model = {
+                    subscriberFirstName: subscriber.subscriberFirstName,
+                    subscriberLastName: subscriber.subscriberLastName,
+                    students: ko.observableArray(ko.utils.arrayMap(subscriber.students, function (student) {
+                        return {
+                            firstName: student.firstName,
+                            lastName: student.lastName,
+                            watchers: ko.observableArray(student.watchers)
+                        };
+                    }))
+                };
 
-                self.addStudent = function() {
-                    self.students.push({
+                self.addStudent = function () {
+                    self.model.students.push({
                         firstName: "",
                         lastName: "",
                         watchers: ko.observableArray()
                     });
                 };
 
-                self.removeStudent = function(student) {
-                    self.students.remove(student);
+                self.removeStudent = function (student) {
+                    self.model.students.remove(student);
                 };
 
-                self.addWatcher = function(student) {
+                self.addWatcher = function (student) {
                     student.watchers.push({
                         watcherFirstName: "",
                         watcherLastName: ""
                     });
                 };
 
-                self.removeWatcher = function(watcher) {
-                    $.each(self.students(), function() { this.watchers.remove(watcher) })
+                self.removeWatcher = function (watcher) {
+                    $.each(self.model.students(), function () {
+                        this.watchers.remove(watcher)
+                    })
                 };
 
-                self.save = function() {
-                    self.lastSavedJson(JSON.stringify(ko.toJS(self.students), null, 2));
+                self.save = function () {
+                    self.lastSavedJson(JSON.stringify(ko.toJS(self.model), null, 2));
                 };
 
                 self.lastSavedJson = ko.observable("")
