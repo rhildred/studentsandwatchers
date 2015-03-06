@@ -1,0 +1,30 @@
+<!Doctype html>
+<html>
+
+<head>
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
+</head>
+
+<body>
+    <div ng-app>
+        <div>
+            <label>Name:</label>
+            <input type="text" data-bind="value: yourName" placeholder="Enter a name here">
+            <hr>
+            <h1>Hello <span data-bind="text: yourName"></span>!</h1>
+        </div>
+    </div>
+    <script>
+        jQuery(document).ready(function () {
+
+            var ViewModel = function (name) {
+                this.yourName = ko.observable(name);
+            };
+
+            ko.applyBindings(new ViewModel(""))
+        });
+    </script>
+</body>
+
+</html>
