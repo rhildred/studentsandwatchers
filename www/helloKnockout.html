@@ -2,8 +2,6 @@
 <html>
 
 <head>
-    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
 </head>
 
 <body>
@@ -15,15 +13,13 @@
             <h1>Hello <span data-bind="text: yourName"></span>!</h1>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
     <script>
-        jQuery(document).ready(function () {
+        var ViewModel = function (name) {
+            this.yourName = ko.observable(name);
+        };
 
-            var ViewModel = function (name) {
-                this.yourName = ko.observable(name);
-            };
-
-            ko.applyBindings(new ViewModel(""))
-        });
+        ko.applyBindings(new ViewModel(""));
     </script>
 </body>
 
