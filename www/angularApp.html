@@ -25,7 +25,7 @@
                     angular.extend($scope.model, JSON.parse(localStorage.getItem("model")));
                 },
                 save: function () {
-                    localStorage.setItem("model", angular.toJson($scope.model));
+                    localStorage.setItem("model", JSON.stringify($scope.model));
                 },
                 hello: function () {
                     alert("Rich was here");
