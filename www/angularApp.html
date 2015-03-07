@@ -2,29 +2,39 @@
 <html>
 
 <head>
-<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
 </head>
 
 <body>
 
-<div ng-app="myApp" ng-controller="myCtrl">
-{{ firstName + " " + lastName }}
-</div>
+    <div ng-app="myApp" ng-controller="myCtrl">
+        <input ng-model="model.firstName" placeholder="first name" />
+        <input ng-model="model.lastName" placeholder="last name" />
+        <span ng-bind='model.firstName + " " + model.lastName'></span>
+        <button ng-click="save()">Save</button>
+    </div>
 
-<script>
-var app = angular.module("myApp", []);
+    <script>
+        angular.module("myApp", []).controller("myCtrl", function ($scope) {
+            angular.extend($scope, {
+                model: {
+                    firstName: "",
+                    lastName: ""
+                },
+                init: function () {
+                    angular.extend($scope.model, JSON.parse(localStorage.getItem("model")));
+                },
+                save: function () {
+                    localStorage.setItem("model", angular.toJson($scope.model));
+                },
+                hello: function () {
+                    alert("Rich was here");
+                }
+            }).init();
 
-app.controller("myCtrl", function($scope) {
-    return {
-        init: function($scope){
-            $scope.firstName = "Fred";
-            $scope.lastName = "Doe";
-
-        }
-    }.init($scope);
-
-});
-</script>
+        });
+    </script>
 
 </body>
+
 </html>
